@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kaspersky — Type of Relationship Game</title>
+<style>
+  :root{
+    --bg:#f7f7f5;
+    --card:#ffffff;
+    --text:#111111;
+    --muted:#8a8a8a;
+    --line:#d9d9d4;
+    --green:#3ff18f;
+    --grey:#d9d9d9;
+    --black:#111111;
+  }
+
+  *{box-sizing:border-box}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Arial, Helvetica, sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+  }
+
+  .app{
+    width:min(980px,100%);
+  }
+
+  .eyebrow{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--muted);
+    margin-bottom:12px;
+  }
+
+  h1{
+    margin:0 0 28px;
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(38px,5.5vw,66px);
+    line-height:1;
+    font-weight:400;
+    max-width:900px;
+  }
+
+  .progress{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+
+  .bar{
+    height:6px;
+    flex:1;
+    border-radius:999px;
+    background:#e2e2dd;
+  }
+
+  .bar.active{background:var(--black)}
+  .bar.done{background:var(--green)}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:28px;
+    padding:clamp(28px,5vw,54px);
+    min-height:390px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+
+  .step{
+    color:var(--muted);
+    font-size:16px;
+    margin-bottom:26px;
+  }
+
+  .question{
+    font-size:clamp(30px,4.3vw,50px);
+    line-height:1.08;
+    font-weight:600;
+    max-width:850px;
+  }
+
+  .actions{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-top:44px;
+  }
+
+  button{
+    border:1px solid var(--black);
+    border-radius:999px;
+    padding:16px 34px;
+    font-size:20px;
+    cursor:pointer;
+    background:#fff;
+    color:#111;
+    -webkit-text-fill-color:#111;
+  }
+
+  .yes{
+    background:var(--black);
+    color:#fff;
+    -webkit-text-fill-color:#fff;
+  }
+
+  .result{
+    display:none;
+  }
+
+  .result-top{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    flex-wrap:wrap;
+    margin-bottom:30px;
+  }
+
+  .icon-wrap{
+    width:150px;
+    height:120px;
+    position:relative;
+    flex:0 0 150px;
+  }
+
+  .circle{
+    width:88px;
+    height:88px;
+    border-radius:50%;
+    background:var(--grey);
+    position:absolute;
+  }
+
+  .pentagon{
+    width:58px;
+    height:58px;
+    background:var(--green);
+    clip-path:polygon(50% 0%, 97% 35%, 79% 100%, 21% 100%, 3% 35%);
+    position:absolute;
+  }
+
+  .star{
+    width:108px;
+    height:108px;
+    background:var(--green);
+    clip-path:polygon(
+      50% 0%, 61% 35%, 98% 35%, 68% 56%,
+      79% 92%, 50% 70%, 21% 92%, 32% 56%,
+      2% 35%, 39% 35%
+    );
+    position:absolute;
+    left:18px;
+    top:5px;
+  }
+
+  .icon-product .circle{left:28px;top:14px}
+  .icon-product .pentagon{left:43px;top:29px}
+
+  .icon-subbrand .circle{left:10px;top:12px}
+  .icon-subbrand .pentagon{left:88px;top:58px;width:42px;height:42px}
+
+  .icon-endorsed .pentagon{left:8px;top:10px;width:92px;height:92px}
+  .icon-endorsed .circle{left:105px;top:67px;width:30px;height:30px}
+
+  .type{
+    display:inline-block;
+    background:var(--black);
+    color:#fff;
+    border-radius:999px;
+    padding:14px 24px;
+    font-size:25px;
+    margin-bottom:12px;
+  }
+
+  .percent{
+    font-size:26px;
+    font-weight:600;
+  }
+
+  .percent span{
+    color:var(--muted);
+    font-size:17px;
+    font-weight:400;
+  }
+
+  .result h2{
+    font-family:Georgia, "Times New Roman", serif;
+    font-size:clamp(38px,5vw,60px);
+    line-height:1;
+    font-weight:400;
+    margin:0 0 16px;
+  }
+
+  .result p{
+    font-size:20px;
+    line-height:1.45;
+    max-width:800px;
+    margin:0;
+    color:#333;
+  }
+
+  .restart{
+    margin-top:32px;
+  }
+
+  .note{
+    margin-top:16px;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  @media(max-width:600px){
+    body{padding:16px}
+    .card{border-radius:22px}
+    .actions button{width:100%}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="eyebrow">Kaspersky Brand System</div>
+  <h1>Определяем тип связи с Kaspersky</h1>
+
+  <div class="progress" id="progress"></div>
+
+  <div class="card">
+    <div id="quiz">
+      <div class="step" id="step"></div>
+      <div class="question" id="question"></div>
+
+      <div class="actions">
+        <button class="yes" onclick="answer(true)">Да</button>
+        <button class="no" onclick="answer(false)">Нет</button>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-top">
+        <div class="icon-wrap" id="iconWrap"></div>
+        <div>
+          <div class="type" id="type"></div>
+          <div class="percent" id="percent"></div>
+        </div>
+      </div>
+
+      <h2 id="resultTitle"></h2>
+      <p id="resultText"></p>
+
+      <button class="restart" onclick="restart()">Пройти ещё раз</button>
+    </div>
+  </div>
+
+  <div class="note">
+    Выбирайте ответ исходя из того, как сущность должна восприниматься аудиторией и насколько самостоятельно она должна жить относительно Kaspersky.
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q:"Это «купленная» сущность?",
+    yes:"INDEPENDENT",
+    no:1
+  },
+  {
+    q:"Нужно ли сущности накапливать собственный бренд-капитал?",
+    yes:2,
+    no:"PRODUCT"
+  },
+  {
+    q:"Должен ли Kaspersky оставаться главным брендом в восприятии аудитории?",
+    yes:"SUBBRAND",
+    no:3
+  },
+  {
+    q:"Нужна ли сущности видимая связь с Kaspersky, чтобы добавлять доверие, экспертизу или подтверждать происхождение?",
+    yes:"ENDORSED",
+    no:"INDEPENDENT"
+  }
+];
+
+const results = {
+  PRODUCT:{
+    type:"ПРОДУКТ",
+    percent:"100%",
+    share:"связь с мастер-брендом",
+    title:"Полностью внутри Kaspersky",
+    text:"Сущность не строит отдельный бренд-капитал и максимально наследует смыслы и айдентику Kaspersky.",
+    icon:'<div class="icon-product"><div class="circle"></div><div class="pentagon"></div></div>'
+  },
+  SUBBRAND:{
+    type:"САББРЕНД",
+    percent:"70/30%",
+    share:"связь с мастер-брендом",
+    title:"Kaspersky остаётся главным брендом",
+    text:"Сущность имеет собственное имя и роль, но основная смысловая и визуальная опора остаётся у Kaspersky.",
+    icon:'<div class="icon-subbrand"><div class="circle"></div><div class="pentagon"></div></div>'
+  },
+  ENDORSED:{
+    type:"БРЕНД С ПОДДЕРЖКОЙ",
+    percent:"30/70%",
+    share:"связь с мастер-брендом",
+    title:"Самостоятельный бренд с поддержкой Kaspersky",
+    text:"Бренд развивает собственное позиционирование и айдентику, а Kaspersky остаётся заметным источником доверия, экспертизы или происхождения.",
+    icon:'<div class="icon-endorsed"><div class="pentagon"></div><div class="circle"></div></div>'
+  },
+  INDEPENDENT:{
+    type:"НЕЗАВИСИМЫЙ БРЕНД",
+    percent:"0%",
+    share:"связь с мастер-брендом",
+    title:"Полностью самостоятельный бренд",
+    text:"Бренд имеет собственное позиционирование и айдентику. Видимая связь с Kaspersky не является частью его брендинга.",
+    icon:'<div class="star"></div>'
+  }
+};
+
+let current = 0;
+
+function draw(){
+  document.getElementById("quiz").style.display="block";
+  document.getElementById("result").style.display="none";
+
+  step.textContent=`Вопрос ${current+1} из ${questions.length}`;
+  question.textContent=questions[current].q;
+
+  progress.innerHTML=questions.map((_,i)=>{
+    const cls=i<current ? "done" : i===current ? "active" : "";
+    return `<div class="bar ${cls}"></div>`;
+  }).join("");
+}
+
+function answer(value){
+  const next=value ? questions[current].yes : questions[current].no;
+  if(typeof next==="string"){
+    showResult(next);
+  }else{
+    current=next;
+    draw();
+  }
+}
+
+function showResult(key){
+  const r=results[key];
+
+  quiz.style.display="none";
+  result.style.display="block";
+
+  iconWrap.innerHTML=r.icon;
+  type.textContent=r.type;
+  percent.innerHTML=`${r.percent} <span>${r.share}</span>`;
+  resultTitle.textContent=r.title;
+  resultText.textContent=r.text;
+
+  progress.innerHTML=questions.map((_,i)=>
+    `<div class="bar ${i<=current ? "done" : ""}"></div>`
+  ).join("");
+}
+
+function restart(){
+  current=0;
+  draw();
+}
+
+draw();
+</script>
+</body>
+</html>
